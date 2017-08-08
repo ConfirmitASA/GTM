@@ -3,58 +3,57 @@ var propsDOM = (function (document) {
         var host = document.createElement('div');
         host.id = 'gtm-confirmit-dataLayer';
         document.querySelector('body').appendChild(host);
+        var registry = {};
 
         var PropsDOM = {
-            registry: {},
-            host: host
+            dataLayer: {}
         };
 
         PropsDOM.__proto__ = {
-            _createNode: function (id, checkCollision) {
-                var node = this.host.querySelector('#' + id);
+            __createNode: function (id, checkCollision) {
+                var node = host.querySelector('#' + id);
                 if (!node) {
                     var el = document.createElement('input');
                     el.id = id;
                     el.style.display = 'none';
-                    this.host.appendChild(el);
+                    host.appendChild(el);
                     return el
                 } else {
                     if (checkCollision) console.warn('element with', id, 'already exists on the page, you might be writing to client element')
                     return node
                 }
             },
-            register: function (prop, value) {
+            _register: function (prop, value) {
                 if (typeof prop !== 'string')
                     throw new TypeError('prop must be a string');
-                if (this.registry[prop])
-                    console.warn('prop "' + prop + '" is already registered with value', this.registry[prop], ', will reset it to', value);
 
-                var node = this.registry[prop] || this._createNode(prop);
+                var node = registry[prop] || this.__createNode(prop);
                 node.value = value;
-                this.registry[prop] = node;
+                registry[prop] = node;
                 return value;
             },
-            unregister: function (prop, keepNode) {
+            _unregister: function (prop, keepNode) {
                 if (typeof prop !== 'string')
                     throw new TypeError('prop must be a string');
-                if (!this.registry[prop])
+                if (!registry[prop])
                     throw new ReferenceError('prop "' + prop + '" is not registered or has been removed');
 
-                var node = this.registry[prop];
-                !keepNode && this.host.removeChild(node);
-                delete this.registry[prop];
+                var node = registry[prop];
+                !keepNode && host.removeChild(node);
+                delete registry[prop];
             },
             getItem: function (prop) {
-                return this.registry[prop].value;
+                return this.dataLayer[prop];
             },
             setItem: function (prop, value) {
-                this.registry[prop].value = value;
-                return value;
+                this.dataLayer[prop] = value;
+                return this._register(prop, value);
             },
             clear: function () {
-                this.registry = {};
-                this.host.parentNode.removeChild(this.host);
-                this.host = null;
+                registry = {};
+                this.dataLayer = {};
+                host.parentNode.removeChild(host);
+                host = null;
             }
         };
 

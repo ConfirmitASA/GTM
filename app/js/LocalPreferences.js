@@ -1,25 +1,43 @@
-function LocalPreferences(ns) {
-    this.nameSpace = ns;
-    if (typeof sessionStorage !== 'undefined') {
-        var storage = sessionStorage.getItem(this.nameSpace);
-        if (storage) {
-            this.storage = JSON.parse(storage)
-        } else {
+var localPreferences = (function (sessionStorage) {
+    var namespace = 'confirmitInterceptLP';
+    var proto = {
+        __updateSessionStorage: function () {
+            typeof sessionStorage !== 'undefined' && sessionStorage.setItem(namespace, JSON.stringify(this.storage));
+        },
+        getItem: function (name) {
+            return this.storage[name];
+        },
+
+        setItem: function (name, value) {
+            this.storage[name] = value;
+            this.__updateSessionStorage();
+        },
+        removeItem: function (name) {
+            delete this.storage[name];
+            this.__updateSessionStorage();
+        },
+        clear: function () {
             this.storage = {}
         }
+    };
+    var storage;
+    if (typeof sessionStorage !== 'undefined') {
+        storage = sessionStorage.getItem(namespace);
+        if (storage) {
+            storage = JSON.parse(storage)
+        } else {
+            storage = {}
+        }
+
+    } else {
+        console.error('sessionStorage support is not detected');
     }
-}
 
-LocalPreferences.prototype.__updateSessionStorage = function () {
-    typeof sessionStorage !== 'undefined' && sessionStorage.setItem(this.nameSpace, JSON.stringify(this.storage));
-};
+    var LocalPreferences = {
+        storage: storage
+    };
 
-LocalPreferences.prototype.getItem = function (name) {
-    var item = this.storage[name];
-    return typeof item!=='undefined' ? JSON.parse(item) : item
-};
+    LocalPreferences.__proto__ = proto;
 
-LocalPreferences.prototype.setItem = function (name, value) {
-    this.storage[name] = value;
-    this.__updateSessionStorage();
-};
+    return LocalPreferences
+})(sessionStorage);
