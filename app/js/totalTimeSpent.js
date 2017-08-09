@@ -1,4 +1,19 @@
 (function () {
+
+    var gtmVar = 'gtm-longTimeSpentOnSite';
+    var config = {
+        name: gtmVar,
+        timeout: 1, //time between writes to browser session storage (in seconds)
+        triggerTime: 40,  //time when callback should trigger (in seconds)
+        callback: function () {
+            cfDataLayer.sync(gtmVar);
+            cfDataLayer.clearCookie();
+            dataLayer.push({event: launchSurvey})
+        }
+    }
+
+    /****** do not edit below *****/
+
     function TimeSpent(options) {
         this.name = options.name;
         this.timeout = options.timeout * 1000;
@@ -20,12 +35,12 @@
     }
 
     TimeSpent.prototype.get = function () {
-        var value = window.sessionStorage.getItem(this.name);
+        var value = cfDataLayer.get(this.name);
         return parseInt(value) || 0
     };
     TimeSpent.prototype.update = function () {
         var total = this.total();
-        window.sessionStorage.setItem(this.name, total);
+        cfDataLayer.setLP(this.name, total);
         this.start(); // restart on update
         return total
     };
@@ -55,24 +70,9 @@
         }
     };
     TimeSpent.clear = function (sessionStorageName) {
-        window.sessionStorage.removeItem(sessionStorageName);
+        cfDataLayer.clear(sessionStorageName);
     };
 
-    /*
-     do not edit above this line
-     ---------------------------------------------------
-     */
+    new TimeSpent(config);
 
-    var sessionStorageName = 'ConfirmitGTM_timeSpent';
-    var GTMeventName = 'longTimeSpentOnSite';
-    new TimeSpent({
-        name: sessionStorageName,
-        timeout: 5, //time between writes to browser session storage (in seconds)
-        triggerTime: 16,  //time when callback should trigger (in seconds)
-        callback: function () {
-            if (dataLayer) {
-                dataLayer.update({event: GTMeventName})
-            }
-        }
-    });
 })();

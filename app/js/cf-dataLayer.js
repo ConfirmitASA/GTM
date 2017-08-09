@@ -1,4 +1,4 @@
-var cfDataLayer = (function (LP, pDOM) {
+var cfDataLayer = (function (LP, pDOM, config) {
     if (typeof LP == null) throw new Error('localPreferences is not initialised, make sure this tag fires before cfDataLayer');
     if (typeof pDOM == null) throw new Error('propsDOM is not initialised, make sure this tag fires before cfDataLayer');
 
@@ -42,8 +42,16 @@ var cfDataLayer = (function (LP, pDOM) {
                     this.clear();
                     pDOM.clear();
                 }
+            },
+            /**
+             * clears survey cookie to be able to launch survey again if it had been launched before
+             * */
+            clearCookie: function(){
+                var domain = location.hostname;
+                var cookieName = 'Confirmit_InterceptSurvey_'+config.surveyID;
+                document.cookie = cookieName +'=; Domain='+domain+'; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
             }
         };
         return DataLayer
     })();
-})(localPreferences, propsDOM);
+})(localPreferences, propsDOM, cfGtmCfg);
