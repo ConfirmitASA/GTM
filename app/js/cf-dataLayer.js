@@ -1,4 +1,4 @@
-var cfDataLayer = (function (LP, pDOM, config) {
+var cfDataLayer = (function (LP, pDOM) {
     if (typeof LP == null) throw new Error('localPreferences is not initialised, make sure this tag fires before cfDataLayer');
     if (typeof pDOM == null) throw new Error('propsDOM is not initialised, make sure this tag fires before cfDataLayer');
 
@@ -48,10 +48,12 @@ var cfDataLayer = (function (LP, pDOM, config) {
              * */
             clearCookie: function(){
                 var domain = location.hostname;
-                var cookieName = 'Confirmit_InterceptSurvey_'+config.surveyID;
-                document.cookie = cookieName +'=; Domain='+domain+'; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                var cookieName = {{cookieName}};
+                var cookieString = cookieName +'=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                console.log(cookieString);
+                document.cookie = cookieString;
             }
         };
         return DataLayer
     })();
-})(localPreferences, propsDOM, cfGtmCfg);
+})(localPreferences, propsDOM);

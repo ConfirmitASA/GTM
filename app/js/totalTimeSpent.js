@@ -1,14 +1,16 @@
 (function () {
 
     var gtmVar = 'gtm-longTimeSpentOnSite';
+    var context = ({{gtm-longTimeSpentOnSite}}).split(',');
+
     var config = {
         name: gtmVar,
-        timeout: 1, //time between writes to browser session storage (in seconds)
-        triggerTime: 40,  //time when callback should trigger (in seconds)
+        triggerTime: context[0] || 60,  //time when callback should trigger (in seconds)
+        timeout: context[1] || 1, //time between writes to browser session storage (in seconds)
         callback: function () {
-            cfDataLayer.sync(gtmVar);
+            cfDataLayer.sync(gtmVar)
             cfDataLayer.clearCookie();
-            dataLayer.push({event: launchSurvey})
+            dataLayer.push({event: 'launchSurvey'})
         }
     }
 
